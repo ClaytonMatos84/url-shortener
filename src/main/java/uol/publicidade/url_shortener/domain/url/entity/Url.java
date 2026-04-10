@@ -1,15 +1,17 @@
-package uol.publicidade.url_shortener.entity;
+package uol.publicidade.url_shortener.domain.url.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
 @Table(name = "urls")
 @Entity(name = "Url")
 @Data
+@EntityListeners(AuditingEntityListener.class)
 public class Url {
 
     @Id
