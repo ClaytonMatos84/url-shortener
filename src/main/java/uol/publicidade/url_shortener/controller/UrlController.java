@@ -1,14 +1,17 @@
 package uol.publicidade.url_shortener.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uol.publicidade.url_shortener.domain.url.dto.UrlDTO;
 import uol.publicidade.url_shortener.domain.url.entity.Url;
 import uol.publicidade.url_shortener.service.UrlService;
 
 import java.net.URI;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,12 +32,22 @@ public class UrlController {
     }
 
     @GetMapping("/active")
-    public List<Url> getActivesUrls() {
-        return urlService.findAllActive();
+    public Page<Url> getActivesUrls(@PageableDefault Pageable pageable) {
+        return urlService.findAllActive(pageable);
     }
 
     @GetMapping("/key/{key}")
     public Url getUrlByKey(@PathVariable String key) {
         return urlService.findByKey(key);
+    }
+
+    @PutMapping("/key/{key}")
+    public void inactivateUrl(@PathVariable String key) {
+        urlService.inactivateUrl(key);
+    }
+
+    @PatchMapping("/key/{key}")
+    public Url updateUrl(@PathVariable String key, @RequestBody UrlDTO dto) {
+        return urlService.updateUrl(key, dto);
     }
 }

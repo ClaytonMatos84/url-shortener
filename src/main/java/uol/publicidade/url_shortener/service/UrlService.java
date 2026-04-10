@@ -3,11 +3,13 @@ package uol.publicidade.url_shortener.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import uol.publicidade.url_shortener.domain.url.dto.UrlDTO;
 import uol.publicidade.url_shortener.domain.url.entity.Url;
 import uol.publicidade.url_shortener.repository.UrlRepository;
 
-import java.util.List;
 import java.util.Random;
 
 @Slf4j
@@ -64,8 +66,29 @@ public class UrlService {
         return url.getOriginalUrl();
     }
 
-    public List<Url> findAllActive() {
-        log.info("[findAllActive] Fetching all active URLs");
-        return urlRepository.findByActiveTrue();
+    public Page<Url> findAllActive(Pageable pageable) {
+        log.info("[findAllActive] Fetching active URLs with pagination - page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
+        Page<Url> byActiveTrue = urlRepository.findByActiveTrue(pageable);
+        log.info("[findAllActive] Found {} active URLs", byActiveTrue.getTotalElements());
+        return byActiveTrue;
+    }
+
+    public void inactivateUrl(String key) {
+        log.info("[inactivateUrl] Inactivating URL with key: {}", key);
+        Url url = findByKey(key);
+        url.setActive(false);
+        urlRepository.save(url);
+        log.info("[inactivateUrl] URL with key: {} has been inactivated", key);
+    }
+
+    public Url updateUrl(String key, UrlDTO dto) {
+        log.info("[updateUrl] Updating URL with key: {}", key);
+        Url url = findByKey(key);
+
+        if (dto.active() != null) url.setActive(dto.active());
+        if (dto.originalUrl() != null) url.setOriginalUrl(dto.originalUrl());
+
+        log.info("[updateUrl] URL with key: {} has been updated", key);
+        return urlRepository.save(url);
     }
 }
